@@ -8,7 +8,7 @@ app = Flask(__name__)
 #Zac: put your main home page html here
 @app.route('/')
 def home():
-    return render_template('index.html')
+    return render_template('home.html')
 
 
 # # login page  
