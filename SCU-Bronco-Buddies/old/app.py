@@ -64,3 +64,12 @@ def register():
         print("Form not validating.")
         print(form.errors)
     return render_template('signup.html', title='Register', form=form)
+
+@app.route("/post/new", methods=['GET', 'POST'])
+#@login_required
+def new_post():
+    form = NewPostForm()
+    if form.validate_on_submit():
+        flash('Your post has been created!', 'success')
+        return redirect(url_for('home'))
+    return render_template('create_post.html', title='New Post', form=form)

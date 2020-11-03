@@ -24,7 +24,7 @@ class LoginForm(FlaskForm):
 class NewPostForm(FlaskForm):
 	title = StringField('Title',
 						validators=[DataRequired()])
-	body = StringField('Question Body',
+	content = StringField('Question Body',
 						validators=[DataRequired()])
 	username = StringField('Username',
 						validators=[DataRequired()])
@@ -32,3 +32,4 @@ class NewPostForm(FlaskForm):
 	forumType = SelectField('Question Type',
 						validators=[DataRequired()],
 						choices=[('1','On Campus'), ('2','Technology'), ('3','Random'), ('4','Homework')])
+	submit = SubmitField('Post')
