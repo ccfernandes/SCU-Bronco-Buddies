@@ -31,6 +31,8 @@
 			<!-- <input type="password" id="inputPassword" class="form-control" placeholder="Password" required=""> -->
 			<!-- <button class="btn btn-lg btn-primary btn-block" type="submit">Login</button> -->
 			<form class="form form-vertical" method="POST">
+        {{ form.hidden_tag() }}
+        {{ form.csrf_token }}
             <div class="form-group">
                     {{ form.email.label(class="form-control-label") }}
                     {% if form.email.errors %}
