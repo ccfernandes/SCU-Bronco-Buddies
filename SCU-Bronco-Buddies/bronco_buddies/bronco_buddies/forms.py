@@ -45,10 +45,10 @@ class NewPostForm(FlaskForm):
 						validators=[DataRequired()])
 	content = StringField('Question Body',
 						validators=[DataRequired()])
-	username = StringField('Username',
-						validators=[DataRequired()])
+	# username = StringField('Username',
+	# 					validators=[DataRequired()])
 	# replace current choices with a query for all rows in forum table 
-	forumType = SelectField('Question Type',
-						validators=[DataRequired()],
-						choices=[('1','On Campus'), ('2','Technology'), ('3','Random'), ('4','Homework')])
+	# forumType = SelectField('Question Type',
+	# 					validators=[DataRequired()],
+	# 					choices=[('1','On Campus'), ('2','Technology'), ('3','Random'), ('4','Homework')])
 	submit = SubmitField('Post')

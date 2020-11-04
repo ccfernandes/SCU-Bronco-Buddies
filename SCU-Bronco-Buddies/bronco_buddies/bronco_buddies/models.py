@@ -2,6 +2,7 @@
 
 from bronco_buddies import db, login_manager
 from flask_login import UserMixin
+from datetime import datetime
 
 
 def init_db():
@@ -54,3 +55,5 @@ class Forum(db.Model, UserMixin):
     threads = db.relationship('Thread', backref='ForumType')
 
 
+    def __repr__(self):
+        return f"Post('{self.title}', '{self.date_posted}')"

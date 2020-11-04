@@ -1,7 +1,7 @@
 # routes.py - defining url paths 
 from flask import render_template, request, url_for, flash, redirect # import the Flask class
 from bronco_buddies import app, db, bcrypt
-from bronco_buddies.models import User
+from bronco_buddies.models import User, Thread
 from bronco_buddies.forms import RegistrationForm, LoginForm, NewPostForm
 from flask_login import login_user, current_user, logout_user, login_required
 from flask import escape
@@ -11,6 +11,7 @@ import jinja2
 @app.route("/")
 @app.route("/home")
 def home():
+    posts = Thread.query.all()
     return render_template('home.html', title='Home')
 
 # about page 
@@ -48,14 +49,25 @@ def login():
             flash('Login unsucessful. Please check credentials.', 'danger')
     return render_template('login.html', title='Login', form=form)
 
+#create a post
 @app.route("/post/new", methods=['GET', 'POST'])
 #@login_required
 def new_post():
     form = NewPostForm()
     if form.validate_on_submit():
+        post = Thread(title=form.title.data, body=form.content.data, upvotes=0, downvotes=0, status="test", owner_id=current_user.firstname+" "+current_user.lastname, forum_id=1)
+        db.session.add(post)
+        db.session.commit() 
         flash('Your post has been created!', 'success')
         return redirect(url_for('home'))
+    print(form.errors)
     return render_template('create_post.html', title='New Post', form=form)
+
+#post view
+@app.route("/post/<int:post_id>")
+def post(post_id):
+    post = Thread.query.get_or_404(post_id)
+    return render_template('post.html', title=post.title, post=post)
 
 # profile page 
 @app.route("/profile")
