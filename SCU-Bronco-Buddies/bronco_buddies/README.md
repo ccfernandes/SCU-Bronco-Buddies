@@ -5,7 +5,7 @@
 ```bash
 .
 ├── README.md
-├── intellivo_package
+├── bronco_buddies
 │   ├── __init__.py
 │   ├── forms.py
 │   ├── broncoBuddies.db
