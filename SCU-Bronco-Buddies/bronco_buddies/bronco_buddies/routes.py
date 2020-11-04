@@ -1,8 +1,8 @@
 # routes.py - defining url paths 
 from flask import render_template, request, url_for, flash, redirect # import the Flask class
 from bronco_buddies import app, db, bcrypt
-from bronco_buddies.models import User
-from bronco_buddies.forms import RegistrationForm, LoginForm, NewPostForm
+from bronco_buddies.models import User, Forum, Thread, Reply
+from bronco_buddies.forms import RegistrationForm, LoginForm, NewPostForm, NewForumForm
 from flask_login import login_user, current_user, logout_user, login_required
 from flask import escape
 import jinja2
@@ -49,12 +49,20 @@ def login():
     return render_template('login.html', title='Login', form=form)
 
 @app.route("/post/new", methods=['GET', 'POST'])
-#@login_required
+@login_required
 def new_post():
     form = NewPostForm()
     if form.validate_on_submit():
+        # save to database 
+        # owner_id = User.query.filter_by(id=current_user.id).first()
+        # don't forget owner_id
+        post = Thread(title=escape(form.title.data), body=escape(form.content.data), votes=0, status="OPEN", owner_id=current_user.id, forum_id=2)
+        db.session.add(post)
+        db.session.commit()
         flash('Your post has been created!', 'success')
         return redirect(url_for('home'))
+    else: 
+         flash('There was an error! Please try again.', 'danger')
     return render_template('create_post.html', title='New Post', form=form)
 
 # profile page 
@@ -64,6 +72,30 @@ def profile():
     user = current_user
     # userpref = UserPref.query.filter_by(user_id = user.id).first()
     return render_template('profile.html', title='Profile')
+
+@app.route("/admin")
+@login_required
+def admin():
+    users = User.query.all()
+    forums = Forum.query.all()
+    return render_template('adminSettings.html', title='Admin Settings', users=users, forums=forums)
+
+@app.route("/forum/add", methods=['GET', 'POST'])
+@login_required
+def add_forum():
+    form = NewForumForm()
+    forums = Forum.query.all()
+    if form.validate_on_submit():
+        # this isn't wrking, idk why. I think it doesn't like numThreads. 
+        # forum = Forum(title=form.title, description=form.description)
+        aform=Forum(numThreads=escape(0), title=escape(form.title.data), description=escape(form.description.data))
+        db.session.add(aform)
+        db.session.commit()
+        return redirect(url_for('admin'))
+    else: 
+         flash('There was an error! Please try again.', 'danger')
+    return render_template('create_forum.html', title="New Forum", form=form)
+
 
 # logout 
 @app.route("/logout")

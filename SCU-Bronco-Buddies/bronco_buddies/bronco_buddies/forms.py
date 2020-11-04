@@ -1,7 +1,7 @@
 # definition of all forms in application 
 
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, BooleanField, SubmitField, SelectField, SelectMultipleField
+from wtforms import StringField, PasswordField, BooleanField, SubmitField, SelectField, SelectMultipleField, TextAreaField
 from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError
 from bronco_buddies.models import User 
 
@@ -43,12 +43,18 @@ class LoginForm(FlaskForm):
 class NewPostForm(FlaskForm):
 	title = StringField('Title',
 						validators=[DataRequired()])
-	content = StringField('Question Body',
+	content = TextAreaField('Question Body',render_kw={"rows": 5, "cols": 11},
 						validators=[DataRequired()])
-	username = StringField('Username',
-						validators=[DataRequired()])
+
 	# replace current choices with a query for all rows in forum table 
 	forumType = SelectField('Question Type',
 						validators=[DataRequired()],
 						choices=[('1','On Campus'), ('2','Technology'), ('3','Random'), ('4','Homework')])
 	submit = SubmitField('Post')
+
+
+class NewForumForm(FlaskForm):
+	title = StringField('Title',
+						validators=[DataRequired()])
+	description = StringField('Forum Description', render_kw={"rows": 5, "cols": 11})
+	submit = SubmitField('Create Forum')
