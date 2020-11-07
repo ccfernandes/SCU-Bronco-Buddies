@@ -1,9 +1,13 @@
 # definition of all forms in application 
 
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, BooleanField, SubmitField, SelectField, SelectMultipleField, TextAreaField
+from wtforms import StringField, PasswordField, SubmitField, SelectField, SelectMultipleField, TextAreaField
+from wtforms.ext.sqlalchemy.fields import QuerySelectField
 from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError
-from bronco_buddies.models import User 
+from bronco_buddies.models import User, Forum
+
+def forum_query():
+    return Forum.query
 
 
 # registration form for login
@@ -36,7 +40,6 @@ class LoginForm(FlaskForm):
 						validators=[DataRequired(), Email()])
 	password = PasswordField('Password',
 							validators=[DataRequired()])
-	remember = BooleanField('Remember Me')
 	submit = SubmitField('Log In')
 
 
@@ -47,9 +50,10 @@ class NewPostForm(FlaskForm):
 						validators=[DataRequired()])
 
 	# replace current choices with a query for all rows in forum table 
-	forumType = SelectField('Question Type',
-						validators=[DataRequired()],
-						choices=[('1','On Campus'), ('2','Technology'), ('3','Random'), ('4','Homework')])
+	# forumType = SelectField('Question Type',
+	# 					validators=[DataRequired()],
+	# 					choices=[('1','Student Life on Campus'), ('2','Technology'), ('3','Random'), ('4','Homework')])
+	forumType = QuerySelectField('Question Type', validators=[DataRequired()], query_factory=forum_query, allow_blank=True, get_label="title")
 	submit = SubmitField('Post')
 
 

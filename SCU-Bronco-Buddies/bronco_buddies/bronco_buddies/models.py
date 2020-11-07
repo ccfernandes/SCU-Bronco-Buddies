@@ -25,12 +25,6 @@ class User(db.Model, UserMixin):
         return f"User('{self.firstname}', '{self.lastname}', '{self.email}')"
 
 
-    # __abstract__ = True
-
-    def __repr__(self):
-        return f"User('{self.username}', '{self.email}')"
-
-
 # a user can have multiple threads 
 # multiple threads can be part of a forum 
 # one thread has multiple replies
@@ -56,7 +50,6 @@ class Forum(db.Model, UserMixin):
 
     # a forum has multiple threads 
     threads = db.relationship('Thread', backref='ForumType')
-
 
 class Reply(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)

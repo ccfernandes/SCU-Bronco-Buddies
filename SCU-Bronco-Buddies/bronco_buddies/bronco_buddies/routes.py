@@ -11,7 +11,8 @@ import jinja2
 @app.route("/")
 @app.route("/home")
 def home():
-    return render_template('home.html', title='Home')
+    posts = Thread.query.all()
+    return render_template('home.html', title='Home', posts=posts)
 
 # about page 
 @app.route("/about")
@@ -54,9 +55,15 @@ def new_post():
     form = NewPostForm()
     if form.validate_on_submit():
         # save to database 
-        # owner_id = User.query.filter_by(id=current_user.id).first()
-        # don't forget owner_id
-        post = Thread(title=escape(form.title.data), body=escape(form.content.data), votes=0, status="OPEN", owner_id=current_user.id, forum_id=2)
+        print(form.forumType.data.id)
+        post = Thread(title=escape(form.title.data), body=escape(form.content.data), votes=0, status="OPEN", 
+                                    owner_id=current_user.id, forum_id=form.forumType.data.id) # forum_id=form.forum_type.data
+
+        # increment numThreads counter for the chosen forum 
+        forum = Forum.query.filter_by(id=form.forumType.data.id).first()
+        forum.numThreads += 1
+        # how to save value in 
+
         db.session.add(post)
         db.session.commit()
         flash('Your post has been created!', 'success')
@@ -70,8 +77,11 @@ def new_post():
 @login_required
 def profile():
     user = current_user
+    posts = Thread.query.filter_by(owner_id=current_user.id).all()
+    for post in posts:
+        print(post.title)
     # userpref = UserPref.query.filter_by(user_id = user.id).first()
-    return render_template('profile.html', title='Profile')
+    return render_template('profile.html', title='Profile', posts=posts)
 
 @app.route("/admin")
 @login_required
