@@ -1,0 +1,72 @@
+<!-- home page -->
+{% extends "layout.html" %}
+{% block content %}
+<head>
+	<title>Bronco Buddies - forums</title>
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" integrity="sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2" crossorigin="anonymous">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/16.0.4/css/intlTelInput.css">
+	<link rel="stylesheet" href="../static/css/colors.css">
+	<style>
+	</style>
+<script >
+$(document).ready(function(){
+  $("#listSearch").on("keyup", function() {
+    var value = $(this).val().toLowerCase();
+    $("#myList li").filter(function() {
+      $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+    });
+  });
+});
+</script>
+</head>
+<body class="bg-light">
+
+	<!-- Search form (doesn't work) -->
+	<div class="container">
+	  <input class="form-control" id="listSearch" type="text" placeholder="Type something to search list items">
+	  <br>
+	  <ul class="list-group" id="myList">
+	    <li class="list-group-item">
+	    	
+	    	<div class="my-3 p-3 bg-light rounded border shadow-sm">
+				<h4>{{post.title}}</h4>
+				<hr>
+				<p>Date posted: {{post.date_posted.strftime('%m-%d-%Y')}}</p>
+				<p>Forum: {{post.forum_id}} </p>
+				<p>Votes: {{post.votes}}</p>
+
+
+      			<p >{{ post.body }}</p>
+
+				<!-- {% if post.author == current__user %} -->
+					<a class="btn btn-secondary btn-sm tm-1 bm-1" href="{{ url_for('update_post', post_id=post.id) }}">Update</a>
+					<button type="button" class="btn btn-danger btn-sm m-1" data-toggle="modal" data-target="#deleteModal">Delete</button>
+				<!-- {% endif %} -->
+			</div>
+			
+	    </li>
+	  </ul>
+
+	 <!-- Modal -->
+	<div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+	  <div class="modal-dialog" role="document">
+	    <div class="modal-content">
+	      <div class="modal-header">
+	        <h5 class="modal-title" id="deleteModalLabel">Delete Post?</h5>
+	        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+	          <span aria-hidden="true">&times;</span>
+	        </button>
+	      </div>
+	      <div class="modal-footer">
+	        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+	        <form action="{{ url_for('delete_post', post_id=post.id) }}" method="POST">
+	        	<input class="btn btn-danger"type="submit" value="Delete">
+	        </form>
+	      </div>
+	    </div>
+	  </div>
+	</div>
+	</div>
+</body>
+{% endblock content %}
+

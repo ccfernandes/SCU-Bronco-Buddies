@@ -1,5 +1,5 @@
 # routes.py - defining url paths 
-from flask import render_template, request, url_for, flash, redirect # import the Flask class
+from flask import render_template, request, url_for, flash, redirect, abort # import the Flask class
 from bronco_buddies import app, db, bcrypt
 from bronco_buddies.models import User, Forum, Thread, Reply
 from bronco_buddies.forms import RegistrationForm, LoginForm, NewPostForm, NewForumForm
@@ -49,6 +49,8 @@ def login():
             flash('Login unsucessful. Please check credentials.', 'danger')
     return render_template('login.html', title='Login', form=form)
 
+
+#create a new post
 @app.route("/post/new", methods=['GET', 'POST'])
 @login_required
 def new_post():
@@ -67,10 +69,55 @@ def new_post():
         db.session.add(post)
         db.session.commit()
         flash('Your post has been created!', 'success')
-        return redirect(url_for('home'))
+        return redirect(url_for('post', post_id=post.id))
     else: 
          flash('There was an error! Please try again.', 'danger')
-    return render_template('create_post.html', title='New Post', form=form)
+    return render_template('create_post.html', title='New Post', 
+        form=form, legend='New Post')
+
+
+#view post
+@app.route("/post/<int:post_id>")
+def post(post_id):
+    post = Thread.query.get_or_404(post_id)
+    return render_template('post.html', title=post.title, post=post)
+
+
+#update posts
+@app.route("/post/<int:post_id>/update", methods=['GET', 'POST'])
+@login_required
+def update_post(post_id):
+    post = Thread.query.get_or_404(post_id)
+    # if post.author != current_user:
+    #     abort(403)
+    form = NewPostForm()
+    if form.validate_on_submit():
+        post.title = form.title.data
+        post.body = form.content.data
+        post.forum_id = form.forumType.data
+        db.session.commit()
+        flash('Your post has been updated!', 'success')
+        return redirect(url_for('post', post_id=post.id))
+    elif request.method == 'GET':
+        form.title.data = post.title
+        form.content.data = post.body
+        # form.forumType.data = post.forum_id
+    return render_template('create_post.html', title='Update Post', form=form, 
+        legend='Update Post')
+
+
+#delete post
+@app.route("/post/<int:post_id>/delete", methods=['POST'])
+@login_required
+def delete_post(post_id):
+    post = Thread.query.get_or_404(post_id)
+    # if post.author != current_user:
+    #     abort(403)
+    db.session.delete(post)
+    db.session.commit()
+    flash('Your post has been deleted!', 'success')
+    return redirect(url_for('home'))
+
 
 # profile page 
 @app.route("/profile")
