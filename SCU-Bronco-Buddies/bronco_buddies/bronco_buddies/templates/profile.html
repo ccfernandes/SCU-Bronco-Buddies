@@ -32,13 +32,34 @@
 			<h3 class="border-bottom border-gray pb-2 mb-0">My Posts</h3>
 			{% for post in posts %}
 				<div class="my-3 p-3 bg-white rounded shadow-sm">
-					<h5>{{post.title}}</h5>
+					<h4><a href="{{ url_for('post', post_id=post.id) }}"> {{post.title}}</a></h4>
 					<p>{{post.body}}</p>
-					<p>Votes: <b>{{post.votes}}</b> date posted: {{post.date_posted}}</p>
+					<p>Votes: <b>{{post.votes}}</b> date posted: {{post.date_posted.strftime('%m-%d-%Y')}}</p>
+					<a class="btn btn-secondary btn-sm tm-1 bm-1" href="{{ url_for('update_post', post_id=post.id) }}">Update</a>
+					<button type="button" class="btn btn-danger btn-sm m-1" data-toggle="modal" data-target="#deleteModal">Delete</button>
 				</div>
 			{% endfor %}
 		</div>
+		<div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+	  <div class="modal-dialog" role="document">
+	    <div class="modal-content">
+	      <div class="modal-header">
+	        <h5 class="modal-title" id="deleteModalLabel">Delete Post?</h5>
+	        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+	          <span aria-hidden="true">&times;</span>
+	        </button>
+	      </div>
+	      <div class="modal-footer">
+	        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+	        <!-- put form for delete here -->
+	      </div>
+	    </div>
+	  </div>
+	</div>
 	</main>
+
+	 <!-- Modal -->
+
 </body>
 
 {% endblock content %}
