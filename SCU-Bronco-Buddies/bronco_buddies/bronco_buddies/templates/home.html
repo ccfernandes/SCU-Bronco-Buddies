@@ -34,41 +34,16 @@ $(document).ready(function(){
 	  <input class="form-control" id="listSearch" type="text" placeholder="Type something to search list items">
 	  <br>
 	  <ul class="list-group" id="myList">
-	    <li class="list-group-item">First Post
+	    <li class="list-group-item">
+	    	{% for post in posts %}
 	    	<div class="my-3 p-3 bg-light rounded border shadow-sm">
-				<h4>Favorite Place to Eat Near Campus?</h4>
+				<h4>{{post.title}}</h4>
 				<hr>
-				<p>Date: Junuary 21, 2020</p>
-				<p>Forum: student life</p>
-				<p>Upvotes: 10 Downvotes: 2</p>
+				<p>Date posted: {{post.date_posted}}</p>
+				<p>Forum: {{post.forum_id}} </p>
+				<p>Votes: {{post.votes}}</p>
 			</div>
-	    </li>
-	    <li class="list-group-item">Second Post
-	    	<div class="my-3 p-3 bg-white rounded border shadow-sm">
-				<h4>Will Classes be Online in the Fall Too?</h4>
-				<hr>
-				<p>Date: March 31, 2020</p>
-				<p>Forum: student life</p>
-				<p>Upvotes: 30 Downvotes: 0</p>
-			</div>
-	    </li>
-	    <li class="list-group-item">Third Post
-	    	<div class="my-3 p-3 bg-light rounded border shadow-sm">
-				<h4>Post: Favorite Place to Eat Near Campus?</h4>
-				<hr>
-				<p>Date: Junuary 21, 2020</p>
-				<p>Forum: student life</p>
-				<p>Upvotes: 10 Downvotes: 2</p>
-		</div>
-	    </li>
-	    <li class="list-group-item">Fourth Post
-			<div class="my-3 p-3 bg-white rounded border shadow-sm">
-				<h4>Post: Will Classes be Online in the Fall Too?</h4>
-				<hr>
-				<p>Date: March 31, 2020</p>
-				<p>Forum: student life</p>
-				<p>Upvotes: 30 Downvotes: 0</p>
-			</div>
+			{% endfor %}
 	    </li>
 	  </ul>
 	</div>

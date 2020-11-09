@@ -1,8 +1,8 @@
 # routes.py - defining url paths 
 from flask import render_template, request, url_for, flash, redirect # import the Flask class
 from bronco_buddies import app, db, bcrypt
-from bronco_buddies.models import User, Thread
-from bronco_buddies.forms import RegistrationForm, LoginForm, NewPostForm
+from bronco_buddies.models import User, Forum, Thread, Reply
+from bronco_buddies.forms import RegistrationForm, LoginForm, NewPostForm, NewForumForm
 from flask_login import login_user, current_user, logout_user, login_required
 from flask import escape
 import jinja2
@@ -12,7 +12,7 @@ import jinja2
 @app.route("/home")
 def home():
     posts = Thread.query.all()
-    return render_template('home.html', title='Home')
+    return render_template('home.html', title='Home', posts=posts)
 
 # about page 
 @app.route("/about")
@@ -49,33 +49,63 @@ def login():
             flash('Login unsucessful. Please check credentials.', 'danger')
     return render_template('login.html', title='Login', form=form)
 
-#create a post
 @app.route("/post/new", methods=['GET', 'POST'])
-#@login_required
+@login_required
 def new_post():
     form = NewPostForm()
     if form.validate_on_submit():
-        post = Thread(title=form.title.data, body=form.content.data, upvotes=0, downvotes=0, status="test", owner_id=current_user.firstname+" "+current_user.lastname, forum_id=1)
+        # save to database 
+        print(form.forumType.data.id)
+        post = Thread(title=escape(form.title.data), body=escape(form.content.data), votes=0, status="OPEN", 
+                                    owner_id=current_user.id, forum_id=form.forumType.data.id) # forum_id=form.forum_type.data
+
+        # increment numThreads counter for the chosen forum 
+        forum = Forum.query.filter_by(id=form.forumType.data.id).first()
+        forum.numThreads += 1
+        # how to save value in 
+
         db.session.add(post)
-        db.session.commit() 
+        db.session.commit()
         flash('Your post has been created!', 'success')
         return redirect(url_for('home'))
-    print(form.errors)
+    else: 
+         flash('There was an error! Please try again.', 'danger')
     return render_template('create_post.html', title='New Post', form=form)
-
-#post view
-@app.route("/post/<int:post_id>")
-def post(post_id):
-    post = Thread.query.get_or_404(post_id)
-    return render_template('post.html', title=post.title, post=post)
 
 # profile page 
 @app.route("/profile")
 @login_required
 def profile():
     user = current_user
+    posts = Thread.query.filter_by(owner_id=current_user.id).all()
+    for post in posts:
+        print(post.title)
     # userpref = UserPref.query.filter_by(user_id = user.id).first()
-    return render_template('profile.html', title='Profile')
+    return render_template('profile.html', title='Profile', posts=posts)
+
+@app.route("/admin")
+@login_required
+def admin():
+    users = User.query.all()
+    forums = Forum.query.all()
+    return render_template('adminSettings.html', title='Admin Settings', users=users, forums=forums)
+
+@app.route("/forum/add", methods=['GET', 'POST'])
+@login_required
+def add_forum():
+    form = NewForumForm()
+    forums = Forum.query.all()
+    if form.validate_on_submit():
+        # this isn't wrking, idk why. I think it doesn't like numThreads. 
+        # forum = Forum(title=form.title, description=form.description)
+        aform=Forum(numThreads=escape(0), title=escape(form.title.data), description=escape(form.description.data))
+        db.session.add(aform)
+        db.session.commit()
+        return redirect(url_for('admin'))
+    else: 
+         flash('There was an error! Please try again.', 'danger')
+    return render_template('create_forum.html', title="New Forum", form=form)
+
 
 # logout 
 @app.route("/logout")

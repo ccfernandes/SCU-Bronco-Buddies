@@ -1,0 +1,51 @@
+{%extends "layout.html" %}
+{% block content %}
+<body class="bg-light">
+	<div class="content-section">
+		<h1>Admin Settings</h1>
+		<hr>
+		<h6>Add forums, manage users and posts</h6>
+	</div>
+	<div class="my-3 p-3 bg-white rounded border shadow-sm">
+		<h2>Currently Open Forums</h2>
+		<table class="table" id="thread_container">
+				<thead>
+					<tr>
+						<th scope="col">Title</th>
+						<th scope="col">Description</th>
+						<th scope="col">Number of Threads</th>
+					</tr>
+				</thead>
+				<tbody>
+					{% for forum in forums %}
+						<tr>
+						<td>{{forum.title}}</td>
+						<td>{{forum.description}}</td>
+						<td>{{forum.numThreads}}</td>
+						</tr>
+					{% endfor %}
+				</tbody>
+		</table>
+		<h3>To create a new forum, <a class="ml-2" href="{{ url_for('add_forum') }}">CLICK HERE</a></h3>
+	</div>
+	<div class="my-3 p-3 bg-white rounded border shadow-sm">
+		<h2>All Current Users</h2>
+		<table class="table" id="thread_container">
+				<thead>
+					<tr>
+						<th scope="col">Name</th>
+						<th scope="col">Email</th>
+					</tr>
+				</thead>
+				<tbody>
+					{% for user in users %}
+						<tr>
+						<td>{{user.firstname}} {{user.lastname}}</td>
+						<td>{{user.email}}</td>
+						</tr>
+					{% endfor %}
+				</tbody>
+		</table>
+	</div>
+</body>
+{% endblock content%}

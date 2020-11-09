@@ -17,10 +17,12 @@
 	<hr>
 	<main role="main" class="container">
 		<div class="my-3 p-3 bg-white rounded shadow-sm">
-			<h6 class="border-bottom border-gray pb-2 mb-0">Welcome back, {{ current_user.firstname }}</h6>
+			<h6 class="border-bottom border-gray pb-2 mb-0">Welcome back, {{ current_user.firstname }}!</h6>
+		</div>
+		<div class="my-3 p-3 bg-white rounded shadow-sm">
 			<div class="media">
 		        <div class="media-body">
-		          <h2 class="account-heading">{{ current_user.username }}</h2>
+		          <h2 class="account-heading">{{ current_user.firstname }} {{ current_user.lastname }}</h2>
 		          <p class="text-secondary">{{ current_user.email }}</p>
 		          <hr>
 	    		</div>
@@ -28,18 +30,13 @@
 		</div>
 		<div class="my-3 p-3 bg-white rounded shadow-sm">
 			<h3 class="border-bottom border-gray pb-2 mb-0">My Posts</h3>
-			<div class="my-3 p-3 bg-white rounded shadow-sm">
-				<h6>Post: Favorite Place to Eat Near Campus?</h6>
-				<p>Date: Junuary 21, 2020</p>
-				<p>Forum: student life</p>
-				<p>Upvotes: 10 Downvotes: 2</p>
-			</div>
-			<div class="my-3 p-3 bg-white rounded shadow-sm">
-				<h6>Post: Will Classes be Online in the Fall Too?</h6>
-				<p>Date: March 31, 2020</p>
-				<p>Forum: student life</p>
-				<p>Upvotes: 30 Downvotes: 0</p>
-			</div>
+			{% for post in posts %}
+				<div class="my-3 p-3 bg-white rounded shadow-sm">
+					<h5>{{post.title}}</h5>
+					<p>{{post.body}}</p>
+					<p>Votes: <b>{{post.votes}}</b> date posted: {{post.date_posted}}</p>
+				</div>
+			{% endfor %}
 		</div>
 	</main>
 </body>
