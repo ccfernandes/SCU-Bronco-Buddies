@@ -8,16 +8,6 @@
 	<link rel="stylesheet" href="../static/css/colors.css">
 	<style>
 	</style>
-<script >
-$(document).ready(function(){
-  $("#listSearch").on("keyup", function() {
-    var value = $(this).val().toLowerCase();
-    $("#myList li").filter(function() {
-      $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
-    });
-  });
-});
-</script>
 </head>
 <body class="bg-light">
 
@@ -34,17 +24,17 @@ $(document).ready(function(){
 	  <input class="form-control" id="listSearch" type="text" placeholder="Type something to search list items">
 	  <br>
 	  <ul class="list-group" id="myList">
-	    <li class="list-group-item">
 	    	{% for post in posts %}
-	    	<div class="my-3 p-3 bg-light rounded border shadow-sm">
-				<h4><a href="{{ url_for('post', post_id=post.id) }}"> {{post.title}}</a></h4>
-				<hr>
-				<p>Date posted: {{post.date_posted.strftime('%m-%d-%Y')}}</p>
-				<p>Forum: {{post.forum_id}} </p>
-				<p>Votes: {{post.votes}}</p>
-			</div>
+	    	<li class="list-group-item">
+		    	<div class="my-3 p-3 bg-light rounded border shadow-sm">
+					<h4><a href="{{ url_for('post', post_id=post.id) }}"> {{post.title}}</a></h4>
+					<hr>
+					<p>Date posted: {{post.date_posted.strftime('%m-%d-%Y')}}</p>
+					<p>Forum: {{post.forum_id}} </p>
+					<p>Votes: {{post.votes}}</p>
+				</div>
+			</li>
 			{% endfor %}
-	    </li>
 	  </ul>
 	</div>
 <!-- 		<script defer>
@@ -82,6 +72,31 @@ $(document).ready(function(){
 			addForumSection("The Rodeo",3,"Wanna socialize with fellow broncos? come on down to the rodeo!");
 
 		</script> -->
+<script>
+
+function searchFunction() {
+  // Declare variables
+  var input, filter, ul, li, a, i, txtValue;
+  input = document.getElementById('listSearch');
+  filter = input.value.toUpperCase();
+  ul = document.getElementById("myList");
+  li = ul.getElementsByTagName('li');
+
+  // Loop through all list items, and hide those who don't match the search query
+  for (i = 0; i < li.length; i++) {
+    a = li[i].getElementsByTagName("a")[0];
+    txtValue = a.textContent || a.innerText;
+    if (txtValue.toUpperCase().indexOf(filter) > -1) {
+      li[i].style.display = "";
+    } else {
+      li[i].style.display = "none";
+    }
+  }
+}
+
+document.querySelector("#listSearch").addEventListener("keyup", searchFunction);
+
+</script>
 </body>
 {% endblock content %}
 
