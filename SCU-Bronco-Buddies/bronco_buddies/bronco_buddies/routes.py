@@ -2,7 +2,7 @@
 from flask import render_template, request, url_for, flash, redirect, abort # import the Flask class
 from bronco_buddies import app, db, bcrypt
 from bronco_buddies.models import User, Forum, Thread, Reply
-from bronco_buddies.forms import RegistrationForm, LoginForm, NewPostForm, NewForumForm
+from bronco_buddies.forms import RegistrationForm, LoginForm, NewPostForm, NewForumForm, ReplyForm
 from flask_login import login_user, current_user, logout_user, login_required
 from flask import escape
 import jinja2
@@ -77,11 +77,17 @@ def new_post():
 
 
 #view post
-@app.route("/post/<int:post_id>")
+@app.route("/post/<int:post_id>", methods=['GET', 'POST'])
 def post(post_id):
     post = Thread.query.get_or_404(post_id)
     replies = Reply.query.filter_by(thread_id = post.id)
-    return render_template('post.html', title=post.title, post=post, replies=replies)
+    form=ReplyForm()
+    if form.validate_on_submit():
+        reply = Reply(owner_id=current_user.id, body=escape(form.body.data), votes=0, thread_id=post_id)
+        db.session.add(reply)
+        db.session.commit()
+        return redirect(url_for('post', post_id=post.id))
+    return render_template('post.html', title=post.title, post=post, replies=replies, form=form)
 
 
 #update posts
@@ -118,7 +124,6 @@ def delete_post(post_id):
     db.session.commit()
     flash('Your post has been deleted!', 'success')
     return redirect(url_for('home'))
-
 
 # profile page 
 @app.route("/profile")

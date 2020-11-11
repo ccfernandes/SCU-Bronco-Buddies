@@ -62,3 +62,8 @@ class NewForumForm(FlaskForm):
 						validators=[DataRequired()])
 	description = StringField('Forum Description', render_kw={"rows": 5, "cols": 11})
 	submit = SubmitField('Create Forum')
+
+class ReplyForm(FlaskForm):
+	body = TextAreaField('Your Response',render_kw={"rows": 5, "cols": 11},
+						validators=[DataRequired()])
+	submit = SubmitField('Post')

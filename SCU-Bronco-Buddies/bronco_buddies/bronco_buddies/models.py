@@ -51,6 +51,8 @@ class Forum(db.Model, UserMixin):
     # a forum has multiple threads 
     threads = db.relationship('Thread', backref='ForumType')
 
+
+# we might need something to accept the answer accept=db.Column(db.Boolean)
 class Reply(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     owner_id = db.Column(db.String(100), nullable=False)
