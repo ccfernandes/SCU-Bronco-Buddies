@@ -7,10 +7,17 @@
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/16.0.4/css/intlTelInput.css">
 	<link rel="stylesheet" href="../static/css/colors.css">
 	<style>
+		.heading{
+			text-align: center;
+		}
 	</style>
 </head>
 <body class="bg-light">
-
+	<div class='content-section heading'>
+		<h1>Bronco Buddies</h1>
+		<hr>
+		<h4>ask questions and get them answered by the SCU community</h4>
+	</div>
 	{% if current_user.is_authenticated: %}
 	<main role="main" class="container">
 		<div class="my-3 p-3 bg-white rounded shadow-sm">
@@ -18,7 +25,6 @@
 		</div>
 	</main>
 	{% endif %}
-
 	<!-- Search form (doesn't work) -->
 	<div class="container">
 	  <input class="form-control" id="listSearch" type="text" placeholder="Type something to search list items">
@@ -27,11 +33,17 @@
 	    	{% for post in posts %}
 	    	<li class="list-group-item">
 		    	<div class="my-3 p-3 bg-light rounded border shadow-sm">
-					<h4><a href="{{ url_for('post', post_id=post.id) }}"> {{post.title}}</a></h4>
+		    		<p>Date posted: {{post.date_posted.strftime('%m-%d-%Y')}}</p>
+					<h3><a href="{{ url_for('post', post_id=post.id) }}"> {{post.title}}</a></h3>
 					<hr>
-					<p>Date posted: {{post.date_posted.strftime('%m-%d-%Y')}}</p>
-					<p>Forum: {{post.forum_id}} </p>
-					<p>Votes: {{post.votes}}</p>
+					<div class="row">
+		    			<div class="col-sm-4">
+								<p>Votes:{{post.votes}}</p>
+						</div>
+						<div class="col-sm-4">
+								<p>Owner:{{post.owner_id}}</p>
+						</div>
+	    			</div>
 				</div>
 			</li>
 			{% endfor %}
