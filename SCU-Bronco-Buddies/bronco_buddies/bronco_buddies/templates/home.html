@@ -26,22 +26,27 @@
 	</main>
 	{% endif %}
 	<!-- Search form (doesn't work) -->
+
 	<div class="container">
 	  <input class="form-control" id="listSearch" type="text" placeholder="Type something to search list items">
+	  <label for="filter">Choose a forum section:</p></label>
+	  <select name="forum-filter" id="forum-filter">
+	  	<option value="">unfiltered</option>
+	  </select>
 	  <br>
 	  <ul class="list-group" id="myList">
 	    	{% for post in posts %}
-	    	<li class="list-group-item">
+	    	<li class="list-group-item post-container">
 		    	<div class="my-3 p-3 bg-light rounded border shadow-sm">
-		    		<p>Date posted: {{post.date_posted.strftime('%m-%d-%Y')}}</p>
+		    		<p class="post-date">Date Posted: {{post.date_posted.strftime('%m-%d-%Y')}}</p>
 					<h3><a href="{{ url_for('post', post_id=post.id) }}"> {{post.title}}</a></h3>
 					<hr>
 					<div class="row">
 		    			<div class="col-sm-4">
-								<p>Votes:{{post.votes}}</p>
+								<p class="post-votes">Votes:{{post.votes}}</p>
 						</div>
 						<div class="col-sm-4">
-								<p>Forum:{{post.getForumTitle()}}</p>
+								<p class="post-forum">Forum:{{post.getForumTitle()}}</p>
 						</div>
 						<div class="col-sm-4">
 								<p>Owner:{{post.owner_id}}</p>
@@ -110,6 +115,40 @@ function searchFunction() {
 }
 
 document.querySelector("#listSearch").addEventListener("keyup", searchFunction);
+
+let posts = document.querySelectorAll(".post-container");
+let post_data = [];
+
+for(let i = 0; i < posts.length; i++) {
+    let vote_count = Number(posts[i].querySelector(".post-votes").innerText.substr(6,posts[i].querySelector(".post-votes").innerText.length));
+    let posted_date = posts[i].querySelector(".post-date").innerText.substr(13,posts[i].querySelector(".post-date").innerText.length);
+    let forum_section = posts[i].querySelector(".post-forum").innerText.substr(6,posts[i].querySelector(".post-forum").innerText.length);
+    post_data.push({container:posts[i], votes:vote_count, date:posted_date, forum:forum_section})
+}
+
+let forum_sections = [...new Set(post_data.map(post => post.forum))];
+let filter_form = document.querySelector("#forum-filter");
+for(let i = 0; i < forum_sections.length; i++) {
+	let dropdown_choice = document.createElement("option");
+	dropdown_choice.value = forum_sections[i];
+	dropdown_choice.innerText = forum_sections[i];
+	filter_form.appendChild(dropdown_choice);
+}
+document.querySelector("#forum-filter").addEventListener("change", function() {
+	let subforum = document.querySelector("#forum-filter").value;
+	if(subforum === "") {
+		for(let i = 0; i < posts.length; i++) {
+			posts[i].hidden = false;
+		}
+	}
+	else {	
+		for(let i = 0; i < posts.length; i++) {
+			if(post_data[i].forum === subforum)
+				posts[i].hidden = false;
+			else posts[i].hidden = true;
+		}
+	}
+})
 
 </script>
 </body>
