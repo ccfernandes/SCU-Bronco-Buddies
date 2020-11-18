@@ -95,8 +95,8 @@ def post(post_id):
 @login_required
 def update_post(post_id):
     post = Thread.query.get_or_404(post_id)
-    # if post.author != current_user:
-    #     abort(403)
+    if post.owner_id != current_user.id:
+        abort(403)
     form = NewPostForm()
     if form.validate_on_submit():
         post.title = form.title.data
@@ -118,8 +118,8 @@ def update_post(post_id):
 @login_required
 def delete_post(post_id):
     post = Thread.query.get_or_404(post_id)
-    # if post.author != current_user:
-    #     abort(403)
+    if post.owner_id != current_user.id:
+        abort(403)
     db.session.delete(post)
     db.session.commit()
     flash('Your post has been deleted!', 'success')
