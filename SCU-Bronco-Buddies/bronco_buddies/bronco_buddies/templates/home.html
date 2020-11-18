@@ -26,19 +26,36 @@
 	</main>
 	{% endif %}
 	<!-- Search form (doesn't work) -->
+
 	<div class="container">
 	  <input class="form-control" id="listSearch" type="text" placeholder="Type something to search list items">
+	  <label for="filter">Choose a forum section:</p></label>
+	  <select name="forum-filter" id="forum-filter">
+	  	<option value="">unfiltered</option>
+	  </select>
+	  <label for="sort">Choose a sorting method:</p></label>
+	  <select name="forum-sorter" id="forum-sorter">
+	  	<option value="">unsorted</option>
+	  	<option value="az">a to z</option>
+	  	<option value="za">z to a</option>
+	  	<option value="votes">votes high to low</option>
+	  	<option value="oldnew">oldest to newest</option>
+	  	<option value="newold">newest to oldest</option>
+	  </select>
 	  <br>
-	  <ul class="list-group" id="myList">
-	    	{% for post in posts %}
-	    	<li class="list-group-item">
+	  <ul class="list-group" id="post-list" style="display:flex; flex-direction:column">
+	    	{% for post in posts.items %}
+	    	<li class="list-group-item post-container">
 		    	<div class="my-3 p-3 bg-light rounded border shadow-sm">
-		    		<p>Date posted: {{post.date_posted.strftime('%m-%d-%Y')}}</p>
+		    		<p class="post-date">Date Posted: {{post.date_posted.strftime('%m-%d-%Y')}}</p>
 					<h3><a href="{{ url_for('post', post_id=post.id) }}"> {{post.title}}</a></h3>
 					<hr>
 					<div class="row">
 		    			<div class="col-sm-4">
-								<p>Votes:{{post.votes}}</p>
+								<p class="post-votes">Votes:{{post.votes}}</p>
+						</div>
+						<div class="col-sm-4">
+								<p class="post-forum">Forum:{{post.getForumTitle()}}</p>
 						</div>
 						<div class="col-sm-4">
 								<p>Owner:{{post.owner_id}}</p>
@@ -46,6 +63,18 @@
 	    			</div>
 				</div>
 			</li>
+			{% endfor %}
+
+			{% for page_num in posts.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %}
+		    	{% if page_num %}
+		    		{% if posts.page == page_num %}
+		    		<a class="btn btn-info mb-4"href="{{ url_for('home', page=page_num) }}">{{ page_num }}</a>
+		    		{% else %}
+		    		<a class="btn btn-outline-info mb-4"href="{{ url_for('home', page=page_num) }}">{{ page_num }}</a>
+		    		{% endif %}
+		    	{% else %}
+		    		...
+		    	{% endif %}
 			{% endfor %}
 	  </ul>
 	</div>
@@ -91,7 +120,7 @@ function searchFunction() {
   var input, filter, ul, li, a, i, txtValue;
   input = document.getElementById('listSearch');
   filter = input.value.toUpperCase();
-  ul = document.getElementById("myList");
+  ul = document.getElementById("post-list");
   li = ul.getElementsByTagName('li');
 
   // Loop through all list items, and hide those who don't match the search query
@@ -107,6 +136,115 @@ function searchFunction() {
 }
 
 document.querySelector("#listSearch").addEventListener("keyup", searchFunction);
+
+let posts = document.querySelectorAll(".post-container");
+let post_data = [];
+
+for(let i = 0; i < posts.length; i++) {
+    let vote_count = Number(posts[i].querySelector(".post-votes").innerText.substr(6,posts[i].querySelector(".post-votes").innerText.length));
+    let posted_date = Date.parse(posts[i].querySelector(".post-date").innerText.substr(13,posts[i].querySelector(".post-date").innerText.length));
+    let forum_section = posts[i].querySelector(".post-forum").innerText.substr(6,posts[i].querySelector(".post-forum").innerText.length);
+    let post_title = posts[i].querySelector("a").innerText;
+    post_data.push({container:posts[i], title:post_title, votes:vote_count, date:posted_date, forum:forum_section})
+}
+
+let forum_sections = [...new Set(post_data.map(post => post.forum))];
+let filter_form = document.querySelector("#forum-filter");
+for(let i = 0; i < forum_sections.length; i++) {
+	let dropdown_choice = document.createElement("option");
+	dropdown_choice.value = forum_sections[i];
+	dropdown_choice.innerText = forum_sections[i];
+	filter_form.appendChild(dropdown_choice);
+}
+document.querySelector("#forum-filter").addEventListener("change", function() {
+	let subforum = document.querySelector("#forum-filter").value;
+	if(subforum === "") {
+		for(let i = 0; i < post_data.length; i++) {
+			post_data[i].container.hidden = false;
+		}
+	}
+	else {	
+		for(let i = 0; i < post_data.length; i++) {
+			if(post_data[i].forum === subforum)
+				post_data[i].container.hidden = false;
+			else post_data[i].container.hidden = true;
+		}
+	}
+});
+
+function azCompare(a,b) {
+	if(a.title > b.title) {
+		return 1;
+	}
+	else {
+		return -1;
+	}
+}
+
+function zaCompare(a,b) {
+	if(a.title < b.title) {
+		return 1;
+	}
+	else {
+		return -1;
+	}
+}
+
+function highLowVotesCompare(a,b) {
+	if(a.votes < b.votes) {
+		return 1;
+	}
+	else {
+		return -1;
+	}
+}
+
+function oldNewCompare(a,b) {
+	if(a.date > b.date) {
+		return 1;
+	}
+	else {
+		return -1;
+	}
+}
+
+function newOldCompare(a,b) {
+	if(a.date < b.date) {
+		return 1;
+	}
+	else {
+		return -1;
+	}
+}
+
+document.querySelector("#forum-sorter").addEventListener("change", function() {
+	let sorting_method = document.querySelector("#forum-sorter").value;
+	if(sorting_method === "") {
+		for(let i = 0; i < post_data.length; i++) {
+		post_data[i].container.style = "order:0";
+	}
+	}
+	let sortingFunction = function(a,b){return 1;}
+	if(sorting_method === "az") {
+		sortingFunction = azCompare;
+	}
+	if(sorting_method === "za") {
+		sortingFunction = zaCompare;
+	}
+	if(sorting_method === "votes") {
+		sortingFunction = highLowVotesCompare;
+	}
+	if(sorting_method === "oldnew") {
+		sortingFunction = oldNewCompare;
+	}
+	if(sorting_method === "newold") {
+		sortingFunction = newOldCompare;
+	}
+		post_data.sort(sortingFunction);
+	for(let i = 0; i < post_data.length; i++) {
+		post_data[i].container.style = `order:${i}`;
+	}
+})
 
 </script>
 </body>

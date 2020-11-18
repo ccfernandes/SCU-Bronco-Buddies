@@ -41,6 +41,9 @@ class Thread(db.Model, UserMixin):
     replies = db.relationship('Reply', backref = 'reply_owner') # a thread can have multiple replies
     # __abstract__ = True
 
+    def getForumTitle(self):
+        return Forum.getTitleFromId(self.forum_id)
+
 
 class Forum(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
@@ -50,6 +53,9 @@ class Forum(db.Model, UserMixin):
 
     # a forum has multiple threads 
     threads = db.relationship('Thread', backref='ForumType')
+
+    def getTitleFromId(param_id):
+        return Forum.query.filter_by(id=param_id).first().title
 
 
 # we might need something to accept the answer accept=db.Column(db.Boolean)

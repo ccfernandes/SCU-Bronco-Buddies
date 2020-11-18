@@ -69,9 +69,9 @@
 							<p>User: <b>{{poster.firstname}} {{poster.lastname}}</b></p>
 					</div>
 					<div class="col-sm-4">
-						<!-- {% if post.author == current__user %} -->
+						{% if post.owner_id == current_user.id %}
 							<a class="btn btn-secondary btn-sm tm-1 bm-1" href="{{ url_for('update_post', post_id=post.id) }}">Update</a><button type="button" class="btn btn-danger btn-sm tm-1 m-1" data-toggle="modal" data-target="#deleteModal">Delete</button>
-						<!-- {% endif %} -->
+						{% endif %}
 					</div>
 	    		</div>
 			</div>

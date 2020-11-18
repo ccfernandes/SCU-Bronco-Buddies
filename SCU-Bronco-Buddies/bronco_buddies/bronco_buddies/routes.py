@@ -11,7 +11,8 @@ import jinja2
 @app.route("/")
 @app.route("/home")
 def home():
-    posts = Thread.query.all()
+    page = request.args.get('page', 1, type=int)
+    posts = Thread.query.paginate(page=page, per_page=20)
     return render_template('home.html', title='Home', posts=posts)
 
 @app.route("/")
@@ -107,13 +108,13 @@ def post(post_id):
 @login_required
 def update_post(post_id):
     post = Thread.query.get_or_404(post_id)
-    # if post.author != current_user:
-    #     abort(403)
+    if post.owner_id != current_user.id:
+        abort(403)
     form = NewPostForm()
     if form.validate_on_submit():
         post.title = form.title.data
         post.body = form.content.data
-        post.forum_id = form.forumType.data
+        # post.forum_id = form.forumType.data]
         db.session.commit()
         flash('Your post has been updated!', 'success')
         return redirect(url_for('post', post_id=post.id))
@@ -130,8 +131,8 @@ def update_post(post_id):
 @login_required
 def delete_post(post_id):
     post = Thread.query.get_or_404(post_id)
-    # if post.author != current_user:
-    #     abort(403)
+    if post.owner_id != current_user.id:
+        abort(403)
     db.session.delete(post)
     db.session.commit()
     flash('Your post has been deleted!', 'success')
