@@ -38,7 +38,6 @@
 					<a class="btn btn-secondary btn-sm tm-1 bm-1" href="{{ url_for('update_post', post_id=post.id) }}">Update</a>
 					<button type="button" class="btn btn-danger btn-sm m-1" data-toggle="modal" data-target="#deleteModal">Delete</button>
 				</div>
-				</div>
 				<div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
 			  <div class="modal-dialog" role="document">
 			    <div class="modal-content">
@@ -58,6 +57,8 @@
 			  </div>
 			</div>
 			{% endfor %}
+
+		</div>
 		
 	</main>
 

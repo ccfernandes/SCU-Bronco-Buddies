@@ -65,7 +65,10 @@
 			</li>
 			{% endfor %}
 
-			{% for page_num in posts.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %}
+			
+	  </ul>
+
+	  {% for page_num in posts.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %}
 		    	{% if page_num %}
 		    		{% if posts.page == page_num %}
 		    		<a class="btn btn-info mb-4"href="{{ url_for('home', page=page_num) }}">{{ page_num }}</a>
@@ -76,7 +79,6 @@
 		    		...
 		    	{% endif %}
 			{% endfor %}
-	  </ul>
 	</div>
 <!-- 		<script defer>
 			let colors = ["bg-navy","bg-blue","bg-aqua","bg-teal","bg-olive","bg-green","bg-lime","bg-yellow","bg-orange","bg-red","bg-fushsia","bg-purple","bg-maroon","bg-white","bg-silver","bg-gray","bg-black"];
