@@ -14,6 +14,11 @@ def home():
     posts = Thread.query.all()
     return render_template('home.html', title='Home', posts=posts)
 
+@app.route("/")
+@app.route("/landing")
+def landingPage():
+    return render_template('landing.html', title='Home')
+
 # about page 
 @app.route("/about")
 def about():
@@ -80,14 +85,21 @@ def new_post():
 @app.route("/post/<int:post_id>", methods=['GET', 'POST'])
 def post(post_id):
     post = Thread.query.get_or_404(post_id)
+    poster = User.query.filter_by(id=post.owner_id).first()
+
     replies = Reply.query.filter_by(thread_id = post.id)
+    names = []
+    for reply in replies:
+        user = User.query.filter_by(id=reply.owner_id).first()
+        names.append(user.firstname + " " + user.lastname)
+        print(names)
     form=ReplyForm()
     if form.validate_on_submit():
         reply = Reply(owner_id=current_user.id, body=escape(form.body.data), votes=0, thread_id=post_id)
         db.session.add(reply)
         db.session.commit()
         return redirect(url_for('post', post_id=post.id))
-    return render_template('post.html', title=post.title, post=post, replies=replies, form=form)
+    return render_template('post.html', title=post.title, post=post, replies=replies, form=form, poster=poster)
 
 
 #update posts
@@ -159,9 +171,41 @@ def add_forum():
          flash('There was an error! Please try again.', 'danger')
     return render_template('create_forum.html', title="New Forum", form=form)
 
-
 # logout 
 @app.route("/logout")
 def logout():
     logout_user()
     return redirect(url_for('home'))
+
+
+# Upvote a reply 
+@app.route("/upvote/<int:reply_id><int:post_id>", methods=['GET','POST'])
+def upvoteReply(reply_id,post_id):
+    curr_reply = Reply.query.filter_by(id=reply_id).first()
+    curr_reply.votes += 1
+    db.session.commit()
+    return redirect(url_for('post', post_id=post_id))
+
+# Downvote a reply
+@app.route("/downvote/<int:reply_id><int:post_id>", methods=['GET','POST'])
+def downvoteReply(reply_id,post_id):
+    curr_reply = Reply.query.filter_by(id=reply_id).first()
+    curr_reply.votes -= 1
+    db.session.commit()
+    return redirect(url_for('post', post_id=post_id))
+
+# Upvote a thread
+@app.route("/upvote/<int:post_id>", methods=['GET','POST'])
+def upvotePost(post_id):
+    curr_post = Thread.query.filter_by(id=post_id).first()
+    curr_post.votes += 1
+    db.session.commit()
+    return redirect(url_for('post', post_id=post_id))
+
+# downvote a thread
+@app.route("/downvote/<int:post_id>", methods=['GET','POST'])
+def downvotePost(post_id):
+    curr_post = Thread.query.filter_by(id=post_id).first()
+    curr_post.votes -= 1
+    db.session.commit()
+    return redirect(url_for('post', post_id=post_id))

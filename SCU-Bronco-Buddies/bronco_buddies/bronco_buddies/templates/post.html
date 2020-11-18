@@ -10,13 +10,31 @@
 		.mybody{
 			margin: auto;
 		}
+
+		.mainPost{
+			background-color: #ffffed;
+			border-radius: 30px;
+		}
+
+		.myRound{
+			border-radius: 30px;
+		}
+
+
+		.roundButton{
+			border-radius: 5px;
+		}
+
+		.sideInfo{
+			text-align: center;
+		}
 	</style>
 </head>
 
 <body class="bg-light">
 	<div class="content-section">
 	  <br>	
-	    <div class="my-3 p-3 bg-light rounded border shadow-sm">
+	    <div class="my-3 p-3 mainPost border shadow-sm">
 
 	    	<div class="row">
 	    		<div class="col-sm-10">
@@ -24,7 +42,7 @@
 					<hr>
 					<div class="row">
 						<div class="col-sm-4">
-							<p>Date posted: {{post.date_posted.strftime('%m-%d-%Y')}}</p>
+							<p>Date posted: <b>{{post.date_posted.strftime('%m-%d-%Y')}}</b></p>
 						</div>
 					</div>
 					<div class="row">
@@ -33,13 +51,23 @@
 						</div>
 					</div>
 				</div>
-				<div class="col-sm-2">
-	    			<div class="col-sm-4">
-							<p>Votes:{{post.votes}}</p>
+				<div class="col-sm-2 sideInfo">
+	    			<div class="col-sm-4 sideInfo">
+	    				<a href="{{ url_for('upvotePost', post_id=post.id) }}">
+		    				<svg width="3em" height="3em" viewBox="0 0 16 16" class="bi bi-arrow-up-circle-fill" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+							  <path fill-rule="evenodd" d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-7.5 3.5a.5.5 0 0 1-1 0V5.707L5.354 7.854a.5.5 0 1 1-.708-.708l3-3a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 5.707V11.5z"/>
+							</svg>
+						</a>						
+						<h1><b>{{post.votes}}</b></h1>
+						<a href="{{ url_for('downvotePost', post_id=post.id) }}">
+		    				<svg width="3em" height="3em" viewBox="0 0 16 16" class="bi bi-arrow-down-circle-fill" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+							  <path fill-rule="evenodd" d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM8.5 4.5a.5.5 0 0 0-1 0v5.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V4.5z"/>
+							</svg>	
+						</a>				
 					</div>
 					<div class="col-sm-4">
-							<p>Owner:{{post.owner_id}}</p>
-						</div>
+							<p>User: <b>{{poster.firstname}} {{poster.lastname}}</b></p>
+					</div>
 					<div class="col-sm-4">
 						<!-- {% if post.author == current__user %} -->
 							<a class="btn btn-secondary btn-sm tm-1 bm-1" href="{{ url_for('update_post', post_id=post.id) }}">Update</a><button type="button" class="btn btn-danger btn-sm tm-1 m-1" data-toggle="modal" data-target="#deleteModal">Delete</button>
@@ -68,20 +96,30 @@
 	    </div>
 	  </div>
 	</div>
-	<div class="content-section">
+	<div class="content-section myRound">
 		<h1>Replies</h1>
 		{% if replies.count() == 0 %}
 			<h4>There are no replies yet!</h4>
 		{% else %}
 			{% for reply in replies %}
-			<div class="my-3 p-3 bg-light rounded border shadow-sm">
+			<div class="my-3 p-3 bg-light myRound border shadow-sm">
 				<div class="row">
 					<div class="col-sm-2">
 						<div class="col-sm-4">
-							<p>Votes:{{reply.votes}}</p>
+							<a href="{{ url_for('upvoteReply', reply_id=reply.id, post_id=post.id) }}">
+			    				<svg width="1.5em" height="1.5em" viewBox="0 0 16 16" class="bi bi-arrow-up-circle-fill" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+								  <path fill-rule="evenodd" d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-7.5 3.5a.5.5 0 0 1-1 0V5.707L5.354 7.854a.5.5 0 1 1-.708-.708l3-3a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 5.707V11.5z"/>
+								</svg>
+							</a>	
+							<h2><b>{{reply.votes}}</b></h2>
+							<a href="{{ url_for('downvoteReply', reply_id=reply.id, post_id=post.id) }}">
+			    				<svg width="1.5em" height="1.5em" viewBox="0 0 16 16" class="bi bi-arrow-down-circle-fill" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+								  <path fill-rule="evenodd" d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM8.5 4.5a.5.5 0 0 0-1 0v5.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V4.5z"/>
+								</svg>	
+							</a>
 						</div>
 						<div class="col-sm-4">
-							<p>Owner:{{reply.owner_id}}</p>
+							<p>User:{{reply.owner_id}}</p>
 						</div>
 					</div>
 					<div class="col-sm-10">
