@@ -7,8 +7,7 @@ from flask_login import login_user, current_user, logout_user, login_required
 from flask import escape
 import jinja2
 
-# home page 
-@app.route("/")
+# search page 
 @app.route("/home")
 def home():
     page = request.args.get('page', 1, type=int)
