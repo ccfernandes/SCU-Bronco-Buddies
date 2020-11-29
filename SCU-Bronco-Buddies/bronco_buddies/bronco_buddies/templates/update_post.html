@@ -22,7 +22,7 @@
 
 <body class="bg-light">
 <div class="content-section">
-    <h1>Make A New Post</h1>
+    <h1>Update Post</h1>
     <form method="POST" action="">
         {{ form.hidden_tag() }}
         {{ form.csrf_token }}
@@ -51,19 +51,6 @@
                     </div>
                 {% else %}
                     {{ form.content(class="form-control form-control-lg") }}
-                {% endif %}
-            </div>
-            <div class="form-group">
-                {{ form.forumType.label(class="form-control-label") }}
-                {% if form.forumType.errors %}
-                    {{ form.forumType(class="form-control form-control-lg is-invalid") }}
-                    <div class="invalid-feedback">
-                        {% for error in form.forumType.errors %}
-                            <span>{{ error }}</span>
-                        {% endfor %}
-                    </div>
-                {% else %}
-                    {{ form.forumType(class="form-control form-control-lg") }}
                 {% endif %}
             </div>
         </fieldset>

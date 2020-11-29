@@ -1,10 +1,11 @@
 # routes.py - defining url paths 
 from flask import render_template, request, url_for, flash, redirect, abort # import the Flask class
-from bronco_buddies import app, db, bcrypt
+from bronco_buddies import app, db, bcrypt, mail
 from bronco_buddies.models import User, Forum, Thread, Reply
-from bronco_buddies.forms import RegistrationForm, LoginForm, NewPostForm, NewForumForm, ReplyForm
+from bronco_buddies.forms import RegistrationForm, LoginForm, UpdateAccountForm, NewPostForm, UpdatePostForm, NewForumForm, ReplyForm, RequestResetForm, ResetPasswordForm
 from flask_login import login_user, current_user, logout_user, login_required
 from flask import escape
+from flask_mail import Message
 import jinja2
 
 # search page 
@@ -54,7 +55,6 @@ def login():
             flash('Login unsucessful. Please check credentials.', 'danger')
     return render_template('login.html', title='Login', form=form)
 
-
 #create a new post
 @app.route("/post/new", methods=['GET', 'POST'])
 @login_required
@@ -78,7 +78,9 @@ def new_post():
     else: 
          flash('There was an error! Please try again.', 'danger')
     return render_template('create_post.html', title='New Post', 
-        form=form, legend='New Post')
+        form=form)
+
+
 
 
 #view post
@@ -103,7 +105,7 @@ def update_post(post_id):
     post = Thread.query.get_or_404(post_id)
     if post.owner_id != current_user.id:
         abort(403)
-    form = NewPostForm()
+    form = UpdatePostForm()
     if form.validate_on_submit():
         post.title = form.title.data
         post.body = form.content.data
@@ -115,8 +117,7 @@ def update_post(post_id):
         form.title.data = post.title
         form.content.data = post.body
         # form.forumType.data = post.forum_id
-    return render_template('create_post.html', title='Update Post', form=form, 
-        legend='Update Post')
+    return render_template('update_post.html', title='Update Post', form=form)
 
 
 #delete post
@@ -132,15 +133,28 @@ def delete_post(post_id):
     return redirect(url_for('home'))
 
 # profile page 
-@app.route("/profile")
+@app.route("/profile", methods=['GET', 'POST'])
 @login_required
 def profile():
     user = current_user
+    form = UpdateAccountForm()
+    if form.validate_on_submit():
+        current_user.firstname = form.firstname.data
+        current_user.lastname = form.lastname.data
+        current_user.email = form.email.data
+        db.session.commit()
+        flash('Your account has been updated!', 'success')
+        return redirect(url_for('profile'))
+    elif request.method == 'GET':
+        form.firstname.data = current_user.firstname
+        form.lastname.data = current_user.lastname
+        form.email.data = current_user.email
     posts = Thread.query.filter_by(owner_id=current_user.id).all()
     for post in posts:
         print(post.title)
     # userpref = UserPref.query.filter_by(user_id = user.id).first()
-    return render_template('profile.html', title='Profile', posts=posts)
+    return render_template('profile.html', title='Profile', posts=posts, form=form)
+
 
 @app.route("/admin")
 @login_required
@@ -203,3 +217,47 @@ def downvotePost(post_id):
     curr_post.votes -= 1
     db.session.commit()
     return redirect(url_for('post', post_id=post_id))
+
+
+def send_reset_email(user):
+    token = user.get_reset_token()
+    msg = Message('Password Reset Request', sender='noreply@broncobuddies.com', recipients=[user.email])
+    msg.body = f'''To reset your password, visit the following link
+{url_for('reset_token', token=token, _external=True)}
+
+If you did not make this request then simply ignore this email and no changes will be made.
+'''
+    mail.send(msg)
+
+
+# request a password reset link
+@app.route("/reset_password", methods=['GET', 'POST'])
+def reset_request():
+    if current_user.is_authenticated:
+        return redirect(url_for('home'))
+    form = RequestResetForm()
+    if form.validate_on_submit():
+        user = User.query.filter_by(email=form.email.data).first()
+        send_reset_email(user)
+        flash('An email has been sent with instructions to rest your password.', 'info')
+        return redirect(url_for('login'))
+    return render_template('reset_request.html', title='Reset Password', form=form)
+
+
+@app.route("/reset_password/<token>", methods=['GET', 'POST'])
+def reset_token(token):
+    if current_user.is_authenticated:
+        return redirect(url_for('home'))
+    user = User.verify_reset_token(token)
+    if user is None:
+        flash('That is an invalid or expired token', 'warning')
+        return redirect(url_for('reset_request'))
+    form = ResetPasswordForm()
+    if form.validate_on_submit():
+        hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
+        user.password = hashed_password
+        db.session.commit()
+        flash('Your password has been updated. You are now able to log in!', 'success')
+        return redirect(url_for('login'))
+    return render_template('reset_token.html', title='Reset Password', form=form)
+
