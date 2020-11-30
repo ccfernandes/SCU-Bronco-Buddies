@@ -243,7 +243,7 @@ def reset_request():
         return redirect(url_for('login'))
     return render_template('reset_request.html', title='Reset Password', form=form)
 
-
+#reset password with a valid token
 @app.route("/reset_password/<token>", methods=['GET', 'POST'])
 def reset_token(token):
     if current_user.is_authenticated:
@@ -260,4 +260,19 @@ def reset_token(token):
         flash('Your password has been updated. You are now able to log in!', 'success')
         return redirect(url_for('login'))
     return render_template('reset_token.html', title='Reset Password', form=form)
+
+
+#reset password with a valid token
+@app.route("/profile/reset_password", methods=['GET', 'POST'])
+@login_required
+def reset_password():
+    user = current_user
+    form = ResetPasswordForm()
+    if form.validate_on_submit():
+        hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
+        user.password = hashed_password
+        db.session.commit()
+        flash('Your password has been updated!!', 'success')
+        return redirect(url_for('profile'))
+    return render_template('reset_password.html', title='Reset Password', form=form)
 
